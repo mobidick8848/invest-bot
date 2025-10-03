@@ -1,0 +1,7 @@
+version: "2025-10-03"
+profiles:
+  C: { mix: { bonds: 85, equities: 10, gold: 5 } }
+  M: { mix: { bonds: 70, equities: 25, gold: 5 } }
+  B: { mix: { bonds: 50, equities: 45, gold: 5 } }
+  G: { mix: { bonds: 25, equities: 70, gold: 5 } }
+  A: { mix: { bonds: 10, equities: 85, gold: 5 } }
