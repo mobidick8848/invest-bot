@@ -1,5 +1,4 @@
-import os
-import asyncio
+import os, asyncio
 from aiogram import Bot, Dispatcher, types
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
@@ -7,15 +6,18 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.context import FSMContext
+from aiogram.utils.token import validate_token, TokenValidationError
 
-BOT_TOKEN = os.getenv("BOT_TOKEN")
+TOKEN = (os.getenv("BOT_TOKEN") or "").strip()
+if not TOKEN:
+raise RuntimeError("Env BOT_TOKEN is empty. Set it in Railway → Variables.")
+try:
+validate_token(TOKEN)
+except TokenValidationError:
+raise RuntimeError("BOT_TOKEN has invalid format. Must look like '123456789:AA...'.")
+print(f"BOT_TOKEN ok (masked tail: …{TOKEN[-6:]})")
 
-class Quiz(StatesGroup):
-    q1 = State()
-    q2 = State()
-    done = State()
-
-bot = Bot(BOT_TOKEN, parse_mode=ParseMode.HTML)
+bot = Bot(TOKEN, parse_mode=ParseMode.HTML)
 dp = Dispatcher(storage=MemoryStorage())
 
 def kb(options):
