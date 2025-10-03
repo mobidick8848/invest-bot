@@ -148,10 +148,13 @@ async def send_channel_post():
             "B — Сбалансированный ⚡\n"
             "G — Ростовой 🚀\n"
             "A — Агрессивный 💎\n\n"
-            "Пройди тест в боте и узнай свой профиль 👇\n"
-            "👉 @your_bot"
+            "Пройди тест и узнай свой профиль 👇"
         )
-        await bot.send_message(CHANNEL_ID, text)
+
+        kb = InlineKeyboardBuilder()
+        kb.button(text="🚀 Запустить тест", url="https://t.me/FinInvestAI_bot?start=start")
+
+        await bot.send_message(CHANNEL_ID, text, reply_markup=kb.as_markup())
 
 async def scheduler():
     while True:
