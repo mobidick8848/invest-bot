@@ -1,6 +1,7 @@
 import os
 import asyncio
 import sqlite3
+import csv
 from datetime import datetime
 from aiogram import Bot, Dispatcher, types
 from aiogram.enums import ParseMode
@@ -15,7 +16,7 @@ from aiogram.client.default import DefaultBotProperties
 # --- Получаем токен и канал ---
 TOKEN = (os.getenv("BOT_TOKEN") or "").strip()
 CHANNEL_ID = int(os.getenv("CHANNEL_ID", "0"))
-ADMIN_ID = int(os.getenv("ADMIN_ID", "0"))  # твой Telegram ID для /stats
+ADMIN_ID = int(os.getenv("ADMIN_ID", "0"))
 
 if not TOKEN:
     raise RuntimeError("Env BOT_TOKEN is empty. Set it in Railway → Variables.")
@@ -156,7 +157,6 @@ async def q5_handler(c: types.CallbackQuery, state: FSMContext):
         "A — Агрессивный: максимальный риск, акции роста, криптовалюты\n"
     )
 
-    # Сохраняем результат в БД
     save_result(c.from_user.id, c.from_user.username, profile)
 
     await c.message.edit_text(
@@ -185,6 +185,29 @@ async def stats_handler(m: types.Message):
     for profile, count in rows:
         text += f"{profile} — {count} пользователей\n"
     await m.answer(text)
+
+# --- Команда /export ---
+@dp.message(Command("export"))
+async def export_handler(m: types.Message):
+    if m.from_user.id != ADMIN_ID:
+        return await m.answer("⛔ У вас нет доступа к этой команде.")
+
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    cur.execute("SELECT user_id, username, profile, date FROM results")
+    rows = cur.fetchall()
+    conn.close()
+
+    if not rows:
+        return await m.answer("📂 Нет данных для экспорта.")
+
+    file_path = os.path.join(os.path.dirname(__file__), "export.csv")
+    with open(file_path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow(["user_id", "username", "profile", "date"])
+        writer.writerows(rows)
+
+    await m.answer_document(types.FSInputFile(file_path))
 
 # --- Автопостинг ---
 async def send_channel_post():
