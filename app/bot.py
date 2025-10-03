@@ -10,13 +10,18 @@ from aiogram.utils.token import validate_token, TokenValidationError
 
 TOKEN = (os.getenv("BOT_TOKEN") or "").strip()
 if not TOKEN:
-raise RuntimeError("Env BOT_TOKEN is empty. Set it in Railway → Variables.")
+    raise RuntimeError("Env BOT_TOKEN is empty. Set it in Railway → Variables.")
 try:
-validate_token(TOKEN)
+    validate_token(TOKEN)
 except TokenValidationError:
-raise RuntimeError("BOT_TOKEN has invalid format. Must look like '123456789:AA...'.")
+    raise RuntimeError("BOT_TOKEN has invalid format. Must look like '123456789:AA...'.")
 print(f"BOT_TOKEN ok (masked tail: …{TOKEN[-6:]})")
 
+class Quiz(StatesGroup):
+    q1 = State()
+    q2 = State()
+    done = State()
+    
 bot = Bot(TOKEN, parse_mode=ParseMode.HTML)
 dp = Dispatcher(storage=MemoryStorage())
 
