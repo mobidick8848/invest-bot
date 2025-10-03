@@ -10,8 +10,10 @@ from aiogram.fsm.context import FSMContext
 from aiogram.utils.token import validate_token, TokenValidationError
 from aiogram.client.default import DefaultBotProperties
 
-# --- Получаем токен ---
+# --- Получаем токен и канал ---
 TOKEN = (os.getenv("BOT_TOKEN") or "").strip()
+CHANNEL_ID = int(os.getenv("CHANNEL_ID", "0"))  # ID канала из Railway Variables
+
 if not TOKEN:
     raise RuntimeError("Env BOT_TOKEN is empty. Set it in Railway → Variables.")
 try:
@@ -129,16 +131,36 @@ async def q5_handler(c: types.CallbackQuery, state: FSMContext):
         f"⚠️ Это не инвестиционная рекомендация."
     )
 
-    # Путь к картинке
+    # Отправляем картинку
     img_path = os.path.join(os.path.dirname(__file__), "assets", "profiles.png")
     if os.path.exists(img_path):
         await c.message.answer_photo(types.FSInputFile(img_path))
 
     await state.clear()
 
+# --- Автопостинг ---
+async def send_channel_post():
+    if CHANNEL_ID != 0:
+        text = (
+            "🔥 Какой ты инвестор?\n"
+            "C — Консервативный 🛡\n"
+            "M — Умеренный ⚖\n"
+            "B — Сбалансированный ⚡\n"
+            "G — Ростовой 🚀\n"
+            "A — Агрессивный 💎\n\n"
+            "Пройди тест в боте и узнай свой профиль 👇\n"
+            "👉 @your_bot"
+        )
+        await bot.send_message(CHANNEL_ID, text)
+
+async def scheduler():
+    while True:
+        await send_channel_post()
+        await asyncio.sleep(3 * 24 * 60 * 60)  # каждые 3 дня
+
 # --- Запуск ---
 async def main():
-    print("Start polling...")
+    asyncio.create_task(scheduler())
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
