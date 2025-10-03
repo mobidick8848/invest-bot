@@ -1,4 +1,10 @@
 import os, asyncio
+TOKEN = (os.getenv("BOT_TOKEN") or "").strip()
+print("ENV_BOT_TOKEN_PRESENT:", 'BOT_TOKEN' in os.environ)
+print("BOT_TOKEN length:", len(TOKEN))
+if not TOKEN:
+    raise RuntimeError("Env BOT_TOKEN is empty. Set it in Railway → Variables.")
+
 from aiogram import Bot, Dispatcher, types
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
