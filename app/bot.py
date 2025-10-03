@@ -28,7 +28,10 @@ class Quiz(StatesGroup):
     q2 = State()
     done = State()
     
-bot = Bot(TOKEN, parse_mode=ParseMode.HTML)
+from aiogram.client.default import DefaultBotProperties
+
+bot = Bot(TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+
 dp = Dispatcher(storage=MemoryStorage())
 
 def kb(options):
